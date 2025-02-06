@@ -1,5 +1,6 @@
 ﻿@using Bibloteca.Models.Domain;
 @model IEnumerable<Usuario>
+
 <h1>
     Dashoard
 </h1>
@@ -32,6 +33,9 @@
                                 <tr>
                                     @* <th> Id</th>*@
                                     <th> @Html.DisplayNameFor(x => x.Nombre)</th>
+                                    <th> @Html.DisplayNameFor(x => x.UserName)</th>
+                                    <th> @Html.DisplayNameFor(x => x.Password)</th>
+                                    <th> @Html.DisplayNameFor(x => x.FkRol)</th>
                                   
                                 </tr>
 
@@ -53,10 +57,10 @@
                                         
 
 
-                                        <td> @Html.DisplayNameFor(x=> Item.Nombre)</td>
-                                        <td> @Html.DisplayNameFor(x=> Item.UserName)</td>
-                                        <td> @Html.DisplayNameFor(x=> Item.Password)</td>
-                                        <td> @Html.DisplayNameFor(x => Item.FkRol)</td>
+                                        <td>@Item.Nombre </td>
+                                        <td> @Item.UserName</td>
+                                        <td> @Item.Password</td>
+                                        <td> @Item.FkRol</td>
                                         <td>
                                             <a class=" btn btn-warning" asp-action="" asp-route-id=><i class="fa-solid fa-pen-to-square"></i> Editar</a>
                                             <a class=" btn btn-danger" asp-action="" asp-route-id=><i class="fa-solid fa-trash"></i> Eliminar</a>

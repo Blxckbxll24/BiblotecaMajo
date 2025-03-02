@@ -1,0 +1,18 @@
+﻿@using Bibloteca.Models.Domain;
+@model Usuario
+
+@{
+    Layout = "_LayoutDashboard";
+}
+
+<h2 class="text-center text-danger">Eliminar Usuario</h2>
+<p class="text-center">¿Estás seguro de que deseas eliminar a <strong>@Model.Nombre</strong>?</p>
+
+<form asp-action="Eliminar" method="POST">
+    <input type="hidden" asp-for="PkUsuario" />
+
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Cancelar</a>
+    </div>
+</form>

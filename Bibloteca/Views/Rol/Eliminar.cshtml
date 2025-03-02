@@ -1,0 +1,17 @@
+﻿@model Bibloteca.Models.Domain.Rol
+
+@{
+    ViewData["Title"] = "Eliminar Rol";
+}
+
+<h2>¿Estás seguro de que quieres eliminar este rol?</h2>
+
+<div>
+    <h4>Rol: @Model.Nombre</h4>
+
+    <form asp-action="EliminarConfirmado">
+        <input type="hidden" asp-for="PkRol" />
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

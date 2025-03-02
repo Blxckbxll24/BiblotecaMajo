@@ -11,7 +11,8 @@ namespace Bibloteca.Models.Domain
         public string UserName { get; set;}
         public string Password { get; set;}
         [ForeignKey(nameof(Rol))]
-        public int FkRol { get; set;}
+        public int FkRol { get; set; }
         public Rol Rol { get; set; }
+
     }
 }

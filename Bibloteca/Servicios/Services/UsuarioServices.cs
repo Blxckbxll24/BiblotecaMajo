@@ -36,23 +36,18 @@ namespace Bibloteca.Servicios.Services
                 Usuario usuario = new Usuario
                 {
                     Nombre = request.Nombre,
-                    UserName = request.UserName,
-                    Password = request.Password,
-                    //encriptar la contraseña
+                    Email = request.Email,  
+                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password), 
                     FkRol = request.FkRol,
                 };
                 _context.Usuarios.Add(usuario);
                 var result = await _context.SaveChangesAsync();
 
-                if (result > 1)
-                {
-                    return true;
-                }
-                return false;
+                return result > 0;
             }
             catch (Exception ex)
             {
-                throw new Exception("Sucedio un error" + ex.Message);
+                throw new Exception("Sucedió un error: " + ex.Message);
             }
         }
 
@@ -67,8 +62,13 @@ namespace Bibloteca.Servicios.Services
                 }
 
                 usuario.Nombre = request.Nombre;
-                usuario.UserName = request.UserName;
-                usuario.Password = request.Password;
+                usuario.Email = request.Email; 
+
+                if (!string.IsNullOrEmpty(request.Password))
+                {
+                    usuario.Password = BCrypt.Net.BCrypt.HashPassword(request.Password); 
+                }
+
                 usuario.FkRol = request.FkRol;
 
                 _context.Usuarios.Update(usuario);
@@ -76,9 +76,11 @@ namespace Bibloteca.Servicios.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Ocurrio un error" + ex.Message);
+                throw new Exception("Ocurrió un error: " + ex.Message);
             }
         }
+
+
 
         public async Task<bool> EliminarUsuarios(int id)
         {

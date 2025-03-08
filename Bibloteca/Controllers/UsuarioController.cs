@@ -6,93 +6,133 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Bibloteca.Controllers
 {
-    public class UsuarioController : Controller
-
-
+    [ApiController]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioServices _usuarioServices;
         private readonly IRolServices _rolServices;
-
 
         public UsuarioController(IUsuarioServices usuarioServices, IRolServices rolServices)
         {
             _usuarioServices = usuarioServices;
             _rolServices = rolServices;
         }
+
+        [HttpGet("ObtenerUsuarios")]
         public IActionResult Index()
         {
-            var result = _usuarioServices.ObtenerUsuario();
-
-            return View(result);
+            try
+            {
+                var result = _usuarioServices.ObtenerUsuario();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            }
         }
 
-        [HttpGet]
+        [HttpGet("Crear")]
         public async Task<IActionResult> Crear()
         {
-            List<Rol> result = await _rolServices.GetAll();
-            ViewBag.Roles = result.Select(p => new SelectListItem()
+            try
             {
-                Text = p.Nombre,
-                Value = p.PkRol.ToString()
-            });
+                List<Rol> result = await _rolServices.GetAll();
+                var roles = result.Select(p => new SelectListItem()
+                {
+                    Text = p.Nombre,
+                    Value = p.PkRol.ToString()
+                });
 
-            return View();
+                return Ok(new { roles });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Crear(Usuario request)
+        [HttpPost("Crear")]
+        public async Task<IActionResult> Crear([FromBody] Usuario request)
         {
-            await _usuarioServices.CrearUsuario(request);
-            return RedirectToAction("Index");
+            try
+            {
+                await _usuarioServices.CrearUsuario(request);
+                return CreatedAtAction(nameof(Index), new { id = request.PkUsuario }, request);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            }
         }
 
-        [HttpGet]
+        [HttpGet("Editar/{id}")]
         public async Task<IActionResult> Editar(int id)
         {
-            var usuario = await _usuarioServices.ObtenerUsuario(id);
-            if (usuario == null)
+            try
             {
-                return NotFound();
+                var usuario = await _usuarioServices.ObtenerUsuario(id);
+                if (usuario == null)
+                {
+                    return NotFound(new { message = "Usuario no encontrado" });
+                }
+
+                List<Rol> roles = await _rolServices.GetAll();
+                var rolesList = roles.Select(p => new SelectListItem()
+                {
+                    Text = p.Nombre,
+                    Value = p.PkRol.ToString(),
+                    Selected = p.PkRol == usuario.FkRol
+                });
+
+                return Ok(new { usuario, roles = rolesList });
             }
-
-            List<Rol> roles = await _rolServices.GetAll();
-            ViewBag.Roles = roles.Select(p => new SelectListItem()
+            catch (Exception ex)
             {
-                Text = p.Nombre,
-                Value = p.PkRol.ToString(),
-                Selected = p.PkRol == usuario.FkRol
-            });
-
-            return View(usuario);
+                return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Editar(Usuario request)
+        [HttpPut("Editar")]
+        public async Task<IActionResult> Editar([FromBody] Usuario request)
         {
-            bool actualizado = await _usuarioServices.ActualizarUsuario(request);
-            if (!actualizado)
+            try
             {
-                ModelState.AddModelError("", "No se puede editar el usuario");
-                return View(request);
+                bool actualizado = await _usuarioServices.ActualizarUsuario(request);
+                if (!actualizado)
+                {
+                    return BadRequest(new { message = "No se pudo actualizar el usuario" });
+                }
+                return Ok(new { message = "Usuario actualizado correctamente" });
             }
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            }
         }
 
-
-        [HttpPost]
+        [HttpDelete("Eliminar/{PKUsuario}")]
         public async Task<IActionResult> Eliminar(int PKUsuario)
         {
-            bool result = await _usuarioServices.EliminarUsuarios(PKUsuario);
+            try
+            {
+                bool result = await _usuarioServices.EliminarUsuarios(PKUsuario);
 
-            if (result)
-            {
-                return Json(new { success = true, message = "Usuario eliminado correctamente." });
+                if (result)
+                {
+                    return Ok(new { success = true, message = "Usuario eliminado correctamente." });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "No se pudo eliminar el usuario." });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "No se pudo eliminar el usuario." });
+                return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
             }
         }
-
     }
 }
